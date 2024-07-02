@@ -7,6 +7,7 @@ const numWordsToShow = 100; // Total number of words you want to display at a ti
 const spreadMultiplier = 1.5; // Multiplier to increase the spread range
 let wordsArray = []; // Array to hold the words from the JSON
 const safeZone = { x: 200, y: 200 }; // Safe zone dimensions around the logo
+let isPaused = false; // Pause state
 
 init();
 animate();
@@ -36,6 +37,7 @@ function init() {
         .catch(error => console.error('Error loading JSON:', error));
 
     window.addEventListener('resize', onWindowResize, false);
+    document.addEventListener('click', togglePause, false); // Add click event listener to toggle pause
 }
 
 function addWordsToScene(numWords) {
@@ -84,32 +86,35 @@ function getRandomWord() {
 
 function animate() {
     requestAnimationFrame(animate);
+    
+    if (!isPaused) {
+        // Move the camera forward continuously
+        camera.position.z -= 1.5; // Speed of the camera moving forward
 
-    // Move the camera forward continuously
-    camera.position.z -= 1.5; // Speed of the camera moving forward
+        // Recycle words that are behind the camera
+        textMeshes.forEach(mesh => {
+            if (mesh.position.z > camera.position.z) {
+                let xPosition, yPosition;
+                do {
+                    xPosition = (Math.random() * 1200 - 600) * spreadMultiplier;
+                    yPosition = (Math.random() * 800 - 400) * spreadMultiplier;
+                } while (Math.abs(xPosition) < safeZone.x && Math.abs(yPosition) < safeZone.y);
 
-    // Recycle words that are behind the camera
-    textMeshes.forEach(mesh => {
-        if (mesh.position.z > camera.position.z) {
-            let xPosition, yPosition;
-            do {
-                xPosition = (Math.random() * 1200 - 600) * spreadMultiplier;
-                yPosition = (Math.random() * 800 - 400) * spreadMultiplier;
-            } while (Math.abs(xPosition) < safeZone.x && Math.abs(yPosition) < safeZone.y);
-
-            mesh.position.set(xPosition, yPosition, camera.position.z - maxDistance); // Reset position far ahead
-        }
-    });
-
-    // Gradually add new words over time
-    if (textMeshes.length < numWordsToShow) {
-        const loader = new THREE.FontLoader();
-        loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (font) {
-            addNewWord(font);
+                mesh.position.set(xPosition, yPosition, camera.position.z - maxDistance); // Reset position far ahead
+            }
         });
+
+        // Gradually add new words over time
+        if (textMeshes.length < numWordsToShow) {
+            const loader = new THREE.FontLoader();
+            loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (font) {
+                addNewWord(font);
+            });
+        }
+
+        TWEEN.update(); // Update TWEEN animations
     }
 
-    TWEEN.update(); // Update TWEEN animations
     renderer.render(scene, camera);
 }
 
@@ -117,4 +122,8 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function togglePause() {
+    isPaused = !isPaused;
 }
