@@ -6,9 +6,10 @@ const additionalNumWords = 1; // Number of additional words to add at a time
 const numWordsToShow = 100; // Total number of words you want to display at a time
 const spreadMultiplier = 1.5; // Multiplier to increase the spread range
 let wordsArray = []; // Array to hold the words from the JSON
+const safeZone = { x: 200, y: 200 }; // Safe zone dimensions around the logo
 
 init();
-animate(); 
+animate();
 
 function init() {
     // Scene setup
@@ -59,8 +60,12 @@ function addNewWord(font) {
     const textMesh = new THREE.Mesh(geometry, material);
 
     // Position new words at a random position but with a certain distance in z
-    let xPosition = (Math.random() * 1200 - 600) * spreadMultiplier;
-    let yPosition = (Math.random() * 800 - 400) * spreadMultiplier;
+    let xPosition, yPosition;
+    do {
+        xPosition = (Math.random() * 1200 - 600) * spreadMultiplier;
+        yPosition = (Math.random() * 800 - 400) * spreadMultiplier;
+    } while (Math.abs(xPosition) < safeZone.x && Math.abs(yPosition) < safeZone.y);
+
     let zPosition = Math.random() * -maxDistance;
     textMesh.position.set(xPosition, yPosition, zPosition);
 
@@ -86,8 +91,12 @@ function animate() {
     // Recycle words that are behind the camera
     textMeshes.forEach(mesh => {
         if (mesh.position.z > camera.position.z) {
-            let xPosition = (Math.random() * 1200 - 600) * spreadMultiplier;
-            let yPosition = (Math.random() * 800 - 400) * spreadMultiplier;
+            let xPosition, yPosition;
+            do {
+                xPosition = (Math.random() * 1200 - 600) * spreadMultiplier;
+                yPosition = (Math.random() * 800 - 400) * spreadMultiplier;
+            } while (Math.abs(xPosition) < safeZone.x && Math.abs(yPosition) < safeZone.y);
+
             mesh.position.set(xPosition, yPosition, camera.position.z - maxDistance); // Reset position far ahead
         }
     });

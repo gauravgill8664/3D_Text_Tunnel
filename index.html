@@ -15,10 +15,37 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
+        }
+
+        #logo {
+            position: absolute;
+            z-index: 1;
+            width: 200px; /* Adjust size as necessary */
+            height: auto;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            padding: 1px 0;
+            background: #f1f1f1; /* Light gray background */
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
         }
     </style>
 </head>
 <body>
+    <img id="logo" src="https://5653437.fs1.hubspotusercontent-eu1.net/hubfs/5653437/Logos/logo.svg" alt="Logo">
     <script src="script.js"></script>
+    <footer>
+        Powered by Idea Lab
+    </footer>
 </body>
 </html>
